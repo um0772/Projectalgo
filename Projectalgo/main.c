@@ -55,7 +55,7 @@ void print_adjList(inputGraph* g) {
     }
 }
 
-
+//main ÇÔ¼ö
 void main() {
     inputGraph* g;
     g = (inputGraph*)malloc(sizeof(inputGraph));
