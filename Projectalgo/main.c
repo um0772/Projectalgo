@@ -2,7 +2,7 @@
 #include <stdlib.h>
 
 #define MAX_VERTICES 9 //최대 정점의 수를 9개로 지정
-
+#define MAX_SIZE 100
 
 typedef struct Graph {
     int V; //정점
@@ -17,6 +17,72 @@ typedef struct inputGraph {
 
 }inputGraph;
 
+typedef struct Heap {
+    int heap;
+    int size[MAX_SIZE];
+}Heap;
+
+void init_Heap(Heap* h) {
+    h = (Heap*)malloc(sizeof(Heap));
+    h->heap = 0;
+    return h;
+}
+
+void add_heap(Heap* h, int size) {
+    h->heap += 1;
+    h->size[h->heap] = size;
+
+    int child = h->heap;
+    int parent = child / 2;
+
+    while (parent) {
+        if (h->size[parent] > h->size[child]) {
+            int n = h->size[parent];
+            h->size[parent] = h->size[child];
+            h->size[child] = n;
+            child = parent;
+            parent = child / 2;
+        }
+        else
+            break;
+    }
+    return;
+}
+
+int empty(Heap* h) {
+    return (h->heap ? 0 : 1);
+}
+
+int delete_min_heap(Heap* h) {
+    if (h->heap == 0) {
+        printf("heap empty\n");
+        return -1;
+    }
+    int root = h->size[1];
+    h->size[1] = h->size[h->heap--];
+
+    int parent = 1;
+    int child = 2;
+
+    while (child <= h->heap) {
+        if (child + 1 <= h->heap && h->size[child] < h->size[child + 1]) {
+            child += 1;
+   
+        }
+        if (h->size[parent] < h->size[child]) {
+            int n = h->size[parent];
+            h->size[parent] = h->size[child];
+            h->size[child] = n;
+
+            parent = child;
+            child = parent * 2;
+
+        }
+        else
+            break;
+    }
+    return root;
+}
 void init_adjList(inputGraph* g) {
     int i;
     g->a = 0;
@@ -64,10 +130,11 @@ void print_adjList(inputGraph* g) {
 }
 
 //main 함수
-void main() {
+int main() {
     inputGraph* g;
     g = (inputGraph*)malloc(sizeof(inputGraph));
-
+    Heap* h = NULL;
+    init_Heap(h);
     init_adjList(g);
 
     for (int i = 0; i < 9; i++) {
@@ -89,6 +156,18 @@ void main() {
     add_edge(g, 7, 8, 7);
     print_adjList(g);
 
+    add_heap(h, 0);
+    add_heap(h, 1);
+    add_heap(h, 2);
+    add_heap(h, 3);
+    add_heap(h, 4);
+    add_heap(h, 5);
+    add_heap(h, 6);
+    add_heap(h, 7);
+    add_heap(h, 8);
 
+    while (!empty(h)) {
+        printf("%d", delete_min_heap(h));
+    }
 }
 
