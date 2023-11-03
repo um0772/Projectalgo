@@ -3,6 +3,7 @@
 
 #define MAX_VERTICES 9 //최대 정점의 수를 9개로 지정
 #define MAX_SIZE 100
+#define INF 999999
 
 typedef struct Graph {
     int V; //정점
@@ -20,23 +21,32 @@ typedef struct inputGraph {
 typedef struct Heap {
     int heap;
     int size[MAX_SIZE];
+    int distance[MAX_SIZE];
 }Heap;
 
-void init_Heap(Heap* h) {
-    h = (Heap*)malloc(sizeof(Heap));
+Heap* init_Heap() {
+    Heap* h = (Heap*)malloc(sizeof(Heap));
+    if (h == NULL) {
+        // 메모리 할당 실패 처리
+        exit(1);
+    }
     h->heap = 0;
+    for (int i = 0; i < MAX_SIZE; i++) {
+        h->distance[i] = INF;  // 처음에는 모든 거리를 무한대로 설정
+    }
     return h;
 }
 
-void add_heap(Heap* h, int size) {
+void add_heap(Heap* h, int size, int dist) {
     h->heap += 1;
     h->size[h->heap] = size;
+    h->distance[size] = dist;
 
     int child = h->heap;
     int parent = child / 2;
 
     while (parent) {
-        if (h->size[parent] > h->size[child]) {
+        if (h->distance[h->size[parent]] > h->distance[h->size[child]]) {
             int n = h->size[parent];
             h->size[parent] = h->size[child];
             h->size[child] = n;
@@ -46,7 +56,6 @@ void add_heap(Heap* h, int size) {
         else
             break;
     }
-    return;
 }
 
 int empty(Heap* h) {
@@ -59,30 +68,31 @@ int delete_min_heap(Heap* h) {
         return -1;
     }
     int root = h->size[1];
-    h->size[1] = h->size[h->heap--];
+    h->size[1] = h->size[h->heap];
+    h->distance[root] = INF;  // 제거된 정점의 거리는 무한대로 설정
+    h->heap--;
 
     int parent = 1;
     int child = 2;
 
     while (child <= h->heap) {
-        if (child + 1 <= h->heap && h->size[child] < h->size[child + 1]) {
+        if (child + 1 <= h->heap && h->distance[h->size[child]] > h->distance[h->size[child + 1]]) {
             child += 1;
-   
         }
-        if (h->size[parent] < h->size[child]) {
+        if (h->distance[h->size[parent]] > h->distance[h->size[child]]) {
             int n = h->size[parent];
             h->size[parent] = h->size[child];
             h->size[child] = n;
 
             parent = child;
             child = parent * 2;
-
         }
         else
             break;
     }
     return root;
 }
+
 void init_adjList(inputGraph* g) {
     int i;
     g->a = 0;
@@ -129,12 +139,78 @@ void print_adjList(inputGraph* g) {
     }
 }
 
+void decrease_key(Heap* h, int v, int distance[]) {
+    h->distance[v] = distance[v];  // 힙의 거리 값을 갱신
+    for (int i = 1; i <= h->heap; i++) {
+        if (h->size[i] == v) {
+            int child = i;
+            int parent = i / 2;
+            while (parent) {
+                if (h->distance[h->size[parent]] > h->distance[h->size[child]]) {
+                    int n = h->size[parent];
+                    h->size[parent] = h->size[child];
+                    h->size[child] = n;
+                    child = parent;
+                    parent = child / 2;
+                }
+                else
+                    break;
+            }
+            break;
+        }
+    }
+}
+
+void Prim(inputGraph* g, int start) {
+    int distance[MAX_VERTICES];
+    int nearest[MAX_VERTICES];
+    int MST[MAX_VERTICES] = { 0, };  // false로 초기화
+    Heap* heap = init_Heap();
+    int totalWeight = 0; // 추가: 전체 가중치를 저장하기 위한 변수
+
+    for (int i = 0; i < g->a; i++) {
+        distance[i] = INF;
+        nearest[i] = start;
+        add_heap(heap, i, distance[i]);
+    }
+    distance[start] = 0;
+    decrease_key(heap, start, distance);
+
+    for (int i = 0; i < g->a - 2; i++) {  // n-2번 반복
+        int u = delete_min_heap(heap);
+        MST[u] = 1;  // true로 설정
+
+        for (Graph* v = g->adjList[u]; v != NULL; v = v->link) {
+            int w = v->V;
+            if (!MST[w]) {
+                if (v->W < distance[w]) {
+                    distance[w] = v->W;
+                    nearest[w] = u;
+                    decrease_key(heap, w, distance);
+                }
+            }
+        }
+    }
+    printf("\n");
+    printf("시작 정점: %d\n", start);
+    for (int i = 0; i < g->a; i++) {
+        if (i != start && distance[i] != INT_MAX) {
+            printf("정점 %d에서 %d | 가중치: %d\n", nearest[i], i, distance[i]);
+            totalWeight += distance[i];
+        }
+    }
+    printf("\n");
+    printf("최소 가중치 값은 %d이다.\n", totalWeight);  // 총 가중치 출력
+}
+
+
+
 //main 함수
 int main() {
     inputGraph* g;
     g = (inputGraph*)malloc(sizeof(inputGraph));
-    Heap* h = NULL;
-    init_Heap(h);
+    
+    Heap* h = init_Heap();
     init_adjList(g);
 
     for (int i = 0; i < 9; i++) {
@@ -156,18 +232,19 @@ int main() {
     add_edge(g, 7, 8, 7);
     print_adjList(g);
 
-    add_heap(h, 0);
-    add_heap(h, 1);
-    add_heap(h, 2);
-    add_heap(h, 3);
-    add_heap(h, 4);
-    add_heap(h, 5);
-    add_heap(h, 6);
-    add_heap(h, 7);
-    add_heap(h, 8);
+    add_heap(h, 0, INF);
+    add_heap(h, 1, INF);
+    add_heap(h, 2, INF);
+    add_heap(h, 3, INF);
+    add_heap(h, 4, INF);
+    add_heap(h, 5, INF);
+    add_heap(h, 6, INF);
+    add_heap(h, 7, INF);
+    add_heap(h, 8, INF);
 
-    while (!empty(h)) {
-        printf("%d", delete_min_heap(h));
-    }
+
+    Prim(g, 0);
+   
+    return 0;
 }
 
