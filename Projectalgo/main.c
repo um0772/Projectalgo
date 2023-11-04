@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 #define MAX_VERTICES 9 // 최대 정점의 수를 9로 정의합니다.
 #define MAX_SIZE 100 // 최대 힙 크기를 100으로 정의합니다.
@@ -26,13 +27,14 @@ typedef struct Heap {
 }Heap;
 
 Heap* init_Heap() {
+    int i;
     Heap* h = (Heap*)malloc(sizeof(Heap)); // 힙을 동적 할당합니다.
     if (h == NULL) {
         // 메모리 할당에 실패한 경우 프로그램을 종료합니다.
         exit(1);
     }
     h->heap = 0; // 힙의 초기 요소 수를 0으로 설정합니다.
-    for (int i = 0; i < MAX_SIZE; i++) {
+    for (i = 0; i < MAX_SIZE; i++) {
         h->distance[i] = INF; // 거리 배열을 무한대로 초기화합니다.
     }
     return h; // 초기화된 힙을 반환합니다.
@@ -101,8 +103,9 @@ int delete_min_heap(Heap* h) {
 }
 
 void init_adjList(inputGraph* g) {
+    int i;
     g->a = 0; // 그래프의 정점 수를 0으로 초기화합니다.
-    for (int i = 0; i < MAX_VERTICES; i++) {
+    for (i = 0; i < MAX_VERTICES; i++) {
         g->adjList[i] = NULL; // 인접 리스트를 NULL로 초기화합니다.
     }
 }
@@ -141,8 +144,9 @@ void add_edge(inputGraph* g, int u, int v, int w) {
 }
 
 void print_adjList(inputGraph* g) {
+    int i;
     printf("-------인접 리스트를 사용한 그래프 출력---------\n\n");
-    for (int i = 0; i < g->a; i++) {
+    for (i = 0; i < g->a; i++) {
         Graph* pg = g->adjList[i];
         printf("정점 %d: ", i);
         while (pg != NULL) {
@@ -159,10 +163,11 @@ void print_adjList(inputGraph* g) {
 }
 
 void decrease_key(Heap* h, int v, int* distance) {
+    int i;
     int prevDistance = h->distance[v]; // 변경 전의 거리 값을 저장합니다.
 
     h->distance[v] = distance[v];  // 힙의 거리 값을 갱신합니다.
-    for (int i = 1; i <= h->heap; i++) {
+    for (i = 1; i <= h->heap; i++) {
         if (h->size[i] == v) {
             int child = i;
             int parent = i / 2;
@@ -189,25 +194,25 @@ void decrease_key(Heap* h, int v, int* distance) {
 }
 
 // 프림 알고리즘 구현
-void Prim(inputGraph* g, int start) {
+void Prim(inputGraph* g, Heap *heap, int root) {
     int distance[MAX_VERTICES]; // 각 정점까지의 거리를 저장하는 배열
     int nearest[MAX_VERTICES]; // 가장 가까운 정점을 저장하는 배열
     int MST[MAX_VERTICES] = { 0, }; // 최소 신장 트리에 포함된 정점을 표시하는 배열
-    Heap* heap = init_Heap(); // 최소 힙을 초기화합니다.
-    int totalWeight = 0; // 최소 신장 트리의 총 가중치
+    int Weight = 0; // 최소 신장 트리의 총 가중치
+    int i;
 
     // 모든 정점에 대해 거리를 무한대로 초기화하고, 최소 힙에 추가합니다.
-    for (int i = 0; i < g->a; i++) {
+    for (i = 0; i < g->a; i++) {
         distance[i] = INF;
-        nearest[i] = start;
+        nearest[i] = root;
         add_heap(heap, i, distance[i]);
     }
     // 시작 정점의 거리를 0으로 설정하고 키 값을 감소시킵니다.
-    distance[start] = 0;
-    decrease_key(heap, start, distance);
+    distance[root] = 0;
+    decrease_key(heap, root, distance);
 
     // 모든 정점을 순회하며 최소 신장 트리를 구성합니다.
-    for (int i = 0; i < g->a - 1; i++) {
+    for (i = 0; i <= g->a - 2; i++) {
         int u = delete_min_heap(heap); // 최소 힙에서 최소 거리 정점을 추출합니다.
         MST[u] = 1; // 추출된 정점을 최소 신장 트리에 포함시킵니다.
 
@@ -225,15 +230,15 @@ void Prim(inputGraph* g, int start) {
     // 최소 신장 트리의 결과를 출력합니다.
     printf("\n");
     printf("----------------최종 가중치 출력----------------\n\n");
-    printf("시작 정점은 %d\n", start);
-    for (int i = 0; i < g->a; i++) {
-        if (i != start && distance[i] != INF) {
+    printf("시작 정점은 %d\n", root);
+    for (i = 0; i < g->a; i++) {
+        if (i != root && distance[i] != INF) {
             printf("정점 %d에서 %d | 가중치: %d\n", nearest[i], i, distance[i]);
-            totalWeight += distance[i]; // 총 가중치를 계산합니다.
+            Weight += distance[i]; // 총 가중치를 계산합니다.
         }
     }
     printf("\n");
-    printf("최소 가중치 값은 %d이다.\n", totalWeight);  // 총 가중치를 출력합니다.
+    printf("최소 가중치 값은 %d이다.\n", Weight);  // 총 가중치를 출력합니다.
 }
 
 //main 함수
@@ -243,9 +248,9 @@ int main() {
 
     Heap* h = init_Heap(); // 힙 초기화
     init_adjList(g); // 인접 리스트 초기화
-
+    int i;
     // 그래프에 정점들을 추가합니다.
-    for (int i = 0; i < 9; i++) {
+    for (i = 0; i < 9; i++) {
         add_vertex(g, i);
     }
     // 그래프에 간선들을 추가합니다. 각 간선은 두 정점과 가중치를 가집니다.
@@ -264,20 +269,8 @@ int main() {
     add_edge(g, 6, 8, 6);
     add_edge(g, 7, 8, 7);
     print_adjList(g); // 인접 리스트를 이용한 그래프 출력
-
-    // 힙에 모든 정점을 무한대 가중치와 함께 추가합니다.
-    add_heap(h, 0, INF);
-    add_heap(h, 1, INF);
-    add_heap(h, 2, INF);
-    add_heap(h, 3, INF);
-    add_heap(h, 4, INF);
-    add_heap(h, 5, INF);
-    add_heap(h, 6, INF);
-    add_heap(h, 7, INF);
-    add_heap(h, 8, INF);
-
-
-    Prim(g, 0); // 프림 알고리즘을 시작 정점 0부터 실행합니다.
+   
+    Prim(g, h, 0); // 프림 알고리즘을 시작 정점 0부터 실행합니다.
    
     return 0;
 }
