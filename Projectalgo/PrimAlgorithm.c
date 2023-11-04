@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#define MAX_VERTICES 9 // 최대 정점의 수를 9로 정의합니다.
+#define MAX_VERTICES 9 // 최대 정점의 수를 9로 정의합니다. (정점이 0부터 8까지)
 #define MAX_SIZE 100 // 최대 힙 크기를 100으로 정의합니다.
 #define INF 999999 // 무한대를 나타내는 값으로 999999를 사용합니다.
 
