@@ -197,7 +197,7 @@ void decrease_key(Heap* h, int v, int* distance) {
 void Prim(inputGraph* g, Heap *heap, int root) {
     int distance[MAX_VERTICES]; // 각 정점까지의 거리를 저장하는 배열
     int nearest[MAX_VERTICES]; // 가장 가까운 정점을 저장하는 배열
-    int MST[MAX_VERTICES] = { 0, }; // 최소 신장 트리에 포함된 정점을 표시하는 배열
+    bool MST[MAX_VERTICES] = { false };  // 최소 신장 트리에 포함된 정점을 표시하는 배열
     int Weight = 0; // 최소 신장 트리의 총 가중치
     int i;
 
@@ -214,7 +214,7 @@ void Prim(inputGraph* g, Heap *heap, int root) {
     // 모든 정점을 순회하며 최소 신장 트리를 구성합니다.
     for (i = 0; i <= g->a - 2; i++) {
         int u = delete_min_heap(heap); // 최소 힙에서 최소 거리 정점을 추출합니다.
-        MST[u] = 1; // 추출된 정점을 최소 신장 트리에 포함시킵니다.
+        MST[u] = true; // 추출된 정점을 최소 신장 트리에 포함시킵니다.
 
         // 추출된 정점과 인접한 정점들에 대해 거리를 갱신합니다.
         for (Graph* v = g->adjList[u]; v != NULL; v = v->link) {
@@ -270,7 +270,7 @@ int main() {
     add_edge(g, 7, 8, 7);
     print_adjList(g); // 인접 리스트를 이용한 그래프 출력
    
-    Prim(g, h, 0); // 프림 알고리즘을 시작 정점 0부터 실행합니다.
+    Prim(g, h, 3); // 프림 알고리즘을 시작 정점 0부터 실행합니다.
    
     return 0;
 }
