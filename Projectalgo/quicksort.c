@@ -7,8 +7,8 @@
 void quicksort_DC(int list[], int low, int high);
 int partition(int list[], int low, int high);
 void shuffle(int* arr, int num);
-void mergesort_DC(int list[], int low, int high);
-void merge(int list[], int low, int mid, int high);
+void mergesort_DC(int list[], int low, int high, int* sorted);
+void merge(int list[], int low, int mid, int high, int* sorted);
 
 void quicksort_DC(int list[], int low, int high) {
     int pivot_pos;
@@ -38,23 +38,19 @@ int partition(int list[], int low, int high) {
     return j;
 }
 
-void mergesort_DC(int list[], int low, int high) {
+void mergesort_DC(int list[], int low, int high, int* sorted) {
     int middle;
     if (low < high) {
         middle = (low + high) / 2;
-        mergesort_DC(list, low, middle);
-        mergesort_DC(list, middle + 1, high);
-        merge(list, low, middle, high);
+        mergesort_DC(list, low, middle, sorted);
+        mergesort_DC(list, middle + 1, high, sorted);
+        merge(list, low, middle, high, sorted);
     }
 }
 
-void merge(int list[], int low, int mid, int high) {
+void merge(int list[], int low, int mid, int high, int* sorted) {
     int i;
-    int* sorted = (int*)malloc(sizeof(int) * (high - low + 1));
-    if (sorted == NULL) {
-        fprintf(stderr, "Memory allocation for merge failed.\n");
-        exit(EXIT_FAILURE);
-    }
+    
     int n1 = low, n2 = mid + 1, s = low;
     while (n1 <= mid && n2 <= high) {
         if (list[n1] <= list[n2]) sorted[s++] = list[n1++];
@@ -69,6 +65,7 @@ void merge(int list[], int low, int mid, int high) {
     }
 
     for (i = low; i <= high; i++) list[i] = sorted[i];
+
 }
 void shuffle(int* arr, int num)
 {
@@ -91,10 +88,18 @@ int main() {
     printf("데이터 수 입력 : ");
     scanf("%d", &num);    // 배열의 크기를 입력받음
     int* arr = (int*)malloc(sizeof(int) * num);
+    int* sorted = (int*)malloc(sizeof(int) * num);
+
     if (!arr) {
         printf("Memory allocation failed.\n");
         return 1; // 메모리 할당 실패 시 프로그램 종료
     }
+
+    if (!sorted) {
+        printf("Memory allocation merge failed. \n");
+        return 1;
+    }
+
     for (int i = 0; i < num; i++) {
         arr[i] = i + 1;    // 배열을 1부터 num 까지의 요소로 초기화
     }
@@ -106,14 +111,31 @@ int main() {
     quicksort_DC(arr, 0, num - 1);
     clock_t quick_end = clock();
 
-    clock_t merge_start = clock();
-    mergesort_DC(arr, 0, num - 1);
-    clock_t merge_end = clock();
-    
-    printf("소요 시간: %lf\n", (double)(quick_end - quick_start) / CLOCKS_PER_SEC);
+    printf("퀵 정렬 완료된 배열: ");
+    for (int i = 0; i < num; i++) {
+        printf("%d ", arr[i]);
+    }
+    printf("\n\n");
 
-    printf("소요 시간: %lf\n", (double)(merge_end - merge_start) / CLOCKS_PER_SEC);
+    clock_t merge_start = clock();
+    mergesort_DC(arr, 0, num - 1, sorted);
+    clock_t merge_end = clock();
+
+    printf("합병 정렬 완료된 배열: ");
+    for (int i = 0; i < num; i++) {
+        printf("%d ", arr[i]);
+    }
+    printf("\n\n");
+
+ 
+    
+    printf("퀵 정렬 소요 시간: %lf\n", (double)(quick_end - quick_start) / CLOCKS_PER_SEC);
+
+    printf("합병 정렬 소요 시간: %lf\n", (double)(merge_end - merge_start) / CLOCKS_PER_SEC);
+
     free(arr);
+    free(sorted);
+
     return 0;
 }
     
