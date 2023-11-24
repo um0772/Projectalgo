@@ -7,6 +7,8 @@
 void quicksort_DC(int list[], int low, int high);
 int partition(int list[], int low, int high);
 void shuffle(int* arr, int num);
+void mergesort_DC(int list[], int low, int high);
+void merge(int list[], int low, int mid, int high);
 
 void quicksort_DC(int list[], int low, int high) {
     int pivot_pos;
@@ -36,6 +38,38 @@ int partition(int list[], int low, int high) {
     return j;
 }
 
+void mergesort_DC(int list[], int low, int high) {
+    int middle;
+    if (low < high) {
+        middle = (low + high) / 2;
+        mergesort_DC(list, low, middle);
+        mergesort_DC(list, middle + 1, high);
+        merge(list, low, middle, high);
+    }
+}
+
+void merge(int list[], int low, int mid, int high) {
+    int i;
+    int* sorted = (int*)malloc(sizeof(int) * (high - low + 1));
+    if (sorted == NULL) {
+        fprintf(stderr, "Memory allocation for merge failed.\n");
+        exit(EXIT_FAILURE);
+    }
+    int n1 = low, n2 = mid + 1, s = low;
+    while (n1 <= mid && n2 <= high) {
+        if (list[n1] <= list[n2]) sorted[s++] = list[n1++];
+        else sorted[s++] = list[n2++];
+    }
+
+    if (n1 > mid) {
+        while (n2 <= high) sorted[s++] = list[n2++];
+    }
+    else {
+        while (n1 <= mid) sorted[s++] = list[n1++];
+    }
+
+    for (i = low; i <= high; i++) list[i] = sorted[i];
+}
 void shuffle(int* arr, int num)
 {
     
@@ -67,14 +101,18 @@ int main() {
  
     shuffle(arr, num);
 
-    clock_t start = clock();
+    clock_t quick_start = clock();
     printf("현재 피봇 : %d\n", arr[0]);
     quicksort_DC(arr, 0, num - 1);
-    clock_t end = clock();
-    
-    printf("소요 시간: %lf\n", (double)(end - start) / CLOCKS_PER_SEC);
+    clock_t quick_end = clock();
 
-   
+    clock_t merge_start = clock();
+    mergesort_DC(arr, 0, num - 1);
+    clock_t merge_end = clock();
+    
+    printf("소요 시간: %lf\n", (double)(quick_end - quick_start) / CLOCKS_PER_SEC);
+
+    printf("소요 시간: %lf\n", (double)(merge_end - merge_start) / CLOCKS_PER_SEC);
     free(arr);
     return 0;
 }

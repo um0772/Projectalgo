@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="78b25a2a-7c36-43f5-b9e9-4d89e48c5cbf" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/PrimAlgorithm.c" beforeDir="false" afterPath="$PROJECT_DIR$/PrimAlgorithm.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Projectalgo.vcxproj" beforeDir="false" afterPath="$PROJECT_DIR$/Projectalgo.vcxproj" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Projectalgo.vcxproj.filters" beforeDir="false" afterPath="$PROJECT_DIR$/Projectalgo.vcxproj.filters" afterDir="false" />
     </list>
@@ -14,9 +13,9 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 4
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 4
+}</component>
   <component name="ProjectId" id="2YPuHeNo1empHhlBhYbiVPUmvLD" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -28,7 +27,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "WebServerToolWindowFactoryState": "false",
     "git-widget-placeholder": "master",
-    "last_opened_file_path": "C:/Users/ops00/OneDrive/바탕 화면/3학년 2학기/알고리즘/Projectalgo/Projectalgo",
+    "last_opened_file_path": "C:/Users/ops00/IdeaProjects/BAEKJOON",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
@@ -41,6 +40,7 @@
       <option name="presentableId" value="Default" />
       <updated>1700439448711</updated>
       <workItem from="1700439449722" duration="16000" />
+      <workItem from="1700442043924" duration="47000" />
     </task>
     <servers />
   </component>
