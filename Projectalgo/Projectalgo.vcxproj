@@ -127,10 +127,20 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="insertionsort.c" />
+    <ClCompile Include="main.c" />
+    <ClCompile Include="mergesort.c" />
     <ClCompile Include="PrimAlgorithm.c">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="quicksort.c" />
+    <ClCompile Include="shuffle.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="insertionsort.h" />
+    <ClInclude Include="mergesort.h" />
+    <ClInclude Include="quicksort.h" />
+    <ClInclude Include="shuffle.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

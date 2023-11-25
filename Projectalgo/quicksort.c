@@ -1,29 +1,18 @@
-#define _CRT_SECURE_NO_WARNINGS
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <time.h>
-#include <string.h>
+#include "quicksort.h"
 
-void quicksort_DC(int list[], int low, int high, int threshold);
-int partition(int list[], int low, int high);
-void shuffle(int* arr, int num);
-void insertion_sort(int list[], int low, int high);
-void mergesort_DC(int list[], int low, int high, int* sorted);
-void merge(int list[], int low, int mid, int high, int* sorted);
-
-
+// 분할 정복을 사용하여 배열을 퀵 정렬하는 함수
 void quicksort_DC(int list[], int low, int high, int threshold) {
     if (high - low + 1 <= threshold) { // 임계값 조건 체크
-        insertion_sort(list, low, high);
+        insertion_sort(list, low, high); // 임계값 이하의 배열 크기에는 삽입 정렬을 수행
     }
-    else {
-        int pivot_pos = partition(list, low, high);
-        quicksort_DC(list, low, pivot_pos - 1, threshold);
-        quicksort_DC(list, pivot_pos + 1, high, threshold);
+    else if (low < high) { // 배열 크기가 1보다 큰 경우에만 정렬을 수행
+        int pivot_pos = partition(list, low, high); // 배열을 분할하고 피봇의 위치를 찾음
+        quicksort_DC(list, low, pivot_pos - 1, threshold); // 피봇을 기준으로 왼쪽 부분 배열을 정렬
+        quicksort_DC(list, pivot_pos + 1, high, threshold); // 피봇을 기준으로 오른쪽 부분 배열을 정렬
     }
 }
 
+// 배열을 분할하고 피봇의 위치를 찾는 함수
 int partition(int list[], int low, int high) {
     int i, j = low;
     for (i = low + 1; i <= high; i++) {
@@ -40,158 +29,5 @@ int partition(int list[], int low, int high) {
     list[low] = list[j];
     list[j] = temp;
 
-    return j;
+    return j; // 피봇의 위치를 반환
 }
-
-void mergesort_DC(int list[], int low, int high, int* sorted) {
-    int middle;
-    if (low < high) {
-        middle = (low + high) / 2;
-        mergesort_DC(list, low, middle, sorted);
-        mergesort_DC(list, middle + 1, high, sorted);
-        merge(list, low, middle, high, sorted);
-    }
-}
-
-void merge(int list[], int low, int mid, int high, int* sorted) {
-    int i;
-
-    int n1 = low, n2 = mid + 1, s = low;
-    while (n1 <= mid && n2 <= high) {
-        if (list[n1] <= list[n2]) sorted[s++] = list[n1++];
-        else sorted[s++] = list[n2++];
-    }
-
-    if (n1 > mid) {
-        while (n2 <= high) sorted[s++] = list[n2++];
-    }
-    else {
-        while (n1 <= mid) sorted[s++] = list[n1++];
-    }
-
-    for (i = low; i <= high; i++) list[i] = sorted[i];
-
-}
-
-void insertion_sort(int list[], int low, int high) {
-    int i, j, next;
-    for (i = low + 1; i <= high; i++) {
-        next = list[i];
-        j = i - 1;
-        // 'low' 인덱스를 기준으로 하여, 'high' 인덱스까지 삽입 정렬 실행
-        while (j >= low && list[j] > next) {
-            list[j + 1] = list[j];
-            j--;
-        }
-        list[j + 1] = next;
-    }
-}
-
-void shuffle(int* list, int n)
-{
-    int i;
-    int temp;
-    int rn;
-    for (i = 0; i < n - 1; i++)
-    {
-        rn = rand() % (n - i) + i; 
-        temp = list[i];
-        list[i] = list[rn];
-        list[rn] = temp;
-    }
-}
-
-int main() {
-    srand((unsigned int)time(NULL));
-    int threshold = 10000;
-    int n;
-    int i;
-
-    printf("데이터 수 입력 : ");
-    scanf("%d", &n);    // 배열의 크기를 입력받음
-    int* sortlist = (int*)malloc(sizeof(int) * n);
-    int* mergesort = (int*)malloc(sizeof(int) * n);
-    int* sortlistCopy = (int*)malloc(sizeof(int) * n);
-
-    if (!sortlist) {
-        printf("Memory allocation failed.\n");
-        return 1; // 메모리 할당 실패 시 프로그램 종료
-    }
-    
-    if (!mergesort) {
-        printf("Memory allocation merge failed. \n");
-        return 1;
-    }
-    if (!sortlistCopy) {
-        printf("Memory allocation merge failed. \n");
-        return 1;
-    }
-    
-    for (i = 0; i < n; i++) {
-        sortlist[i] = i + 1;    // 배열을 1부터 num 까지의 요소로 초기화
-    }
-    
-    /*
-    for (i = 0; i < n; i++) {
-        sortlist[i] = rand() % 1000000 + 1; // 1부터 100 사이의 난수 할당
-    }
-    */
-
-    shuffle(sortlist, n);
-    /*
-    printf("셔플된 배열: ");
-    for (i = 0; i < n; i++) {
-        printf("%d ", sortlist[i]);
-    }
-    printf("\n\n");
-    */
-    memcpy(sortlistCopy, sortlist, sizeof(int) * n);
-
-    /*
-    printf("셔플된 배열: ");
-    for (i = 0; i < n; i++) {
-        printf("%d ", sortlistCopy[i]);
-    }
-    printf("\n\n");
-    */
-
-    printf("현재 피봇 : %d\n", sortlist[0]);
-    clock_t quick_start = clock();
-    quicksort_DC(sortlist, 0, n - 1, threshold);
-    clock_t quick_end = clock();
-    
-    clock_t merge_start = clock();
-    mergesort_DC(sortlistCopy, 0, n - 1, mergesort);
-    clock_t merge_end = clock();
-   
-  
-    
-
-
-    printf("퀵 정렬 소요 시간: %lf\n", (double)(quick_end - quick_start) / CLOCKS_PER_SEC);
-    
-    printf("합병 정렬 소요 시간: %lf\n", (double)(merge_end - merge_start) / CLOCKS_PER_SEC);
-
-    /*
-    printf("퀵 정렬 완료된 배열: ");
-    for (i = 0; i < n; i++) {
-        printf("%d ", sortlist[i]);
-    }
-    printf("\n\n");
-    */
-    /*
-    printf("합병 정렬 완료된 배열: ");
-    for (i = 0; i < n; i++) {
-        printf("%d ", sortlist[i]);
-    }
-    printf("\n\n");
-    */
-
-    free(sortlist);
-    free(mergesort);
-    free(sortlistCopy);
-
-    return 0;
-}
-
-
