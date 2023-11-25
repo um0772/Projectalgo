@@ -18,8 +18,8 @@ void quicksort_DC(int list[], int low, int high, int threshold) {
     }
     else {
         int pivot_pos = partition(list, low, high);
-        quicksort_DC(list, low, pivot_pos - 1, threshold);
-        quicksort_DC(list, pivot_pos + 1, high, threshold);
+        //quicksort_DC(list, low, pivot_pos - 1, threshold);
+        //quicksort_DC(list, pivot_pos + 1, high, threshold);
     }
 }
 
@@ -86,14 +86,14 @@ void insertion_sort(int list[], int low, int high) {
     }
 }
 
-void shuffle(int* arr, int num)
+void shuffle(int* arr, int n)
 {
-
+    int i;
     int temp;
     int rn;
-    for (int i = 0; i < num - 1; i++)
+    for (i = 0; i < n - 1; i++)
     {
-        rn = rand() % (num - i) + i;    // i 부터 num-1 사이에 임의의 정수 생성
+        rn = rand() % (n - i) + i; 
         temp = arr[i];
         arr[i] = arr[rn];
         arr[rn] = temp;
@@ -102,65 +102,80 @@ void shuffle(int* arr, int num)
 
 int main() {
     srand((unsigned int)time(NULL));
-    int threshold = 10;
-    int num;
-    printf("데이터 수 입력 : ");
-    scanf("%d", &num);    // 배열의 크기를 입력받음
-    int* arr = (int*)malloc(sizeof(int) * num);
-    int* sorted = (int*)malloc(sizeof(int) * num);
+    int threshold = 100;
+    int n;
+    int i;
 
-    if (!arr) {
+    printf("데이터 수 입력 : ");
+    scanf("%d", &n);    // 배열의 크기를 입력받음
+    int* sortlist = (int*)malloc(sizeof(int) * n);
+    int* mergesort = (int*)malloc(sizeof(int) * n);
+
+    if (!sortlist) {
         printf("Memory allocation failed.\n");
         return 1; // 메모리 할당 실패 시 프로그램 종료
     }
 
-    if (!sorted) {
+    if (!mergesort) {
         printf("Memory allocation merge failed. \n");
         return 1;
     }
 
-    for (int i = 0; i < num; i++) {
-        arr[i] = i + 1;    // 배열을 1부터 num 까지의 요소로 초기화
+    for (i = 0; i < n; i++) {
+        sortlist[i] = i + 1;    // 배열을 1부터 num 까지의 요소로 초기화
     }
-
-    shuffle(arr, num);
-    printf("셔플된 배열: ");
-    for (int i = 0; i < num; i++) {
-        printf("%d ", arr[i]);
+    
+    for (i = 0; i < n; i++) {
+        sortlist[i] = rand() % 1000 + 1; // 1부터 100 사이의 난수 할당
     }
-    printf("\n\n");
+    
 
-    clock_t quick_start = clock();
-    printf("현재 피봇 : %d\n", arr[0]);
-    quicksort_DC(arr, 0, num - 1, threshold);
-    clock_t quick_end = clock();
+    shuffle(sortlist, n);
     /*
-    printf("퀵 정렬 완료된 배열: ");
-    for (int i = 0; i < num; i++) {
-        printf("%d ", arr[i]);
+    printf("셔플된 배열: ");
+    for (i = 0; i < n; i++) {
+        printf("%d ", sortlist[i]);
     }
     printf("\n\n");
     */
+    clock_t quick_start = clock();
+    printf("현재 피봇 : %d\n", sortlist[0]);
+    quicksort_DC(sortlist, 0, n - 1, threshold);
+    clock_t quick_end = clock();
+    
+    
+   
+    
 
     clock_t merge_start = clock();
-    mergesort_DC(arr, 0, num - 1, sorted);
+    mergesort_DC(sortlist, 0, n - 1, mergesort);
     clock_t merge_end = clock();
 
-    /*
-    printf("합병 정렬 완료된 배열: ");
-    for (int i = 0; i < num; i++) {
-        printf("%d ", arr[i]);
-    }
-    printf("\n\n");
-    */
+
+    
 
 
     printf("퀵 정렬 소요 시간: %lf\n", (double)(quick_end - quick_start) / CLOCKS_PER_SEC);
     
     printf("합병 정렬 소요 시간: %lf\n", (double)(merge_end - merge_start) / CLOCKS_PER_SEC);
 
-    free(arr);
-    free(sorted);
+    /*
+    printf("퀵 정렬 완료된 배열: ");
+    for (i = 0; i < n; i++) {
+        printf("%d ", sortlist[i]);
+    }
+    printf("\n\n");
+    */
+    /*
+    printf("합병 정렬 완료된 배열: ");
+    for (i = 0; i < n; i++) {
+        printf("%d ", sortlist[i]);
+    }
+    printf("\n\n");
+    */
+
+    free(sortlist);
+    free(mergesort);
 
     return 0;
 }
