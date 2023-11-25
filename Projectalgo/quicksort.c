@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <time.h>
+#include <string.h>
 
 void quicksort_DC(int list[], int low, int high, int threshold);
 int partition(int list[], int low, int high);
@@ -18,8 +19,8 @@ void quicksort_DC(int list[], int low, int high, int threshold) {
     }
     else {
         int pivot_pos = partition(list, low, high);
-        //quicksort_DC(list, low, pivot_pos - 1, threshold);
-        //quicksort_DC(list, pivot_pos + 1, high, threshold);
+        quicksort_DC(list, low, pivot_pos - 1, threshold);
+        quicksort_DC(list, pivot_pos + 1, high, threshold);
     }
 }
 
@@ -73,20 +74,20 @@ void merge(int list[], int low, int mid, int high, int* sorted) {
 }
 
 void insertion_sort(int list[], int low, int high) {
-    int i, j, key;
+    int i, j, next;
     for (i = low + 1; i <= high; i++) {
-        key = list[i];
+        next = list[i];
         j = i - 1;
         // 'low' 인덱스를 기준으로 하여, 'high' 인덱스까지 삽입 정렬 실행
-        while (j >= low && list[j] > key) {
+        while (j >= low && list[j] > next) {
             list[j + 1] = list[j];
             j--;
         }
-        list[j + 1] = key;
+        list[j + 1] = next;
     }
 }
 
-void shuffle(int* arr, int n)
+void shuffle(int* list, int n)
 {
     int i;
     int temp;
@@ -94,15 +95,15 @@ void shuffle(int* arr, int n)
     for (i = 0; i < n - 1; i++)
     {
         rn = rand() % (n - i) + i; 
-        temp = arr[i];
-        arr[i] = arr[rn];
-        arr[rn] = temp;
+        temp = list[i];
+        list[i] = list[rn];
+        list[rn] = temp;
     }
 }
 
 int main() {
     srand((unsigned int)time(NULL));
-    int threshold = 100;
+    int threshold = 10000;
     int n;
     int i;
 
@@ -110,25 +111,31 @@ int main() {
     scanf("%d", &n);    // 배열의 크기를 입력받음
     int* sortlist = (int*)malloc(sizeof(int) * n);
     int* mergesort = (int*)malloc(sizeof(int) * n);
+    int* sortlistCopy = (int*)malloc(sizeof(int) * n);
 
     if (!sortlist) {
         printf("Memory allocation failed.\n");
         return 1; // 메모리 할당 실패 시 프로그램 종료
     }
-
+    
     if (!mergesort) {
         printf("Memory allocation merge failed. \n");
         return 1;
     }
-
+    if (!sortlistCopy) {
+        printf("Memory allocation merge failed. \n");
+        return 1;
+    }
+    
     for (i = 0; i < n; i++) {
         sortlist[i] = i + 1;    // 배열을 1부터 num 까지의 요소로 초기화
     }
     
+    /*
     for (i = 0; i < n; i++) {
-        sortlist[i] = rand() % 1000 + 1; // 1부터 100 사이의 난수 할당
+        sortlist[i] = rand() % 1000000 + 1; // 1부터 100 사이의 난수 할당
     }
-    
+    */
 
     shuffle(sortlist, n);
     /*
@@ -138,20 +145,26 @@ int main() {
     }
     printf("\n\n");
     */
-    clock_t quick_start = clock();
+    memcpy(sortlistCopy, sortlist, sizeof(int) * n);
+
+    /*
+    printf("셔플된 배열: ");
+    for (i = 0; i < n; i++) {
+        printf("%d ", sortlistCopy[i]);
+    }
+    printf("\n\n");
+    */
+
     printf("현재 피봇 : %d\n", sortlist[0]);
+    clock_t quick_start = clock();
     quicksort_DC(sortlist, 0, n - 1, threshold);
     clock_t quick_end = clock();
     
-    
-   
-    
-
     clock_t merge_start = clock();
-    mergesort_DC(sortlist, 0, n - 1, mergesort);
+    mergesort_DC(sortlistCopy, 0, n - 1, mergesort);
     clock_t merge_end = clock();
-
-
+   
+  
     
 
 
@@ -176,6 +189,7 @@ int main() {
 
     free(sortlist);
     free(mergesort);
+    free(sortlistCopy);
 
     return 0;
 }
