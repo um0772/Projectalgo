@@ -29,4 +29,4 @@ void merge(int list[], int low, int mid, int high, int* sorted) {
     }
 
     for (i = low; i <= high; i++) list[i] = sorted[i]; // 병합된 결과를 원래 배열에 복사
-} // merge 함수 종료
+} 
